@@ -41,7 +41,8 @@ Java 1.8+ (for Stanford CoreNLP) ([Download](http://www.oracle.com/technetwork/c
 Stanford CoreNLP 3.7.0 ([Download](https://stanfordnlp.github.io/CoreNLP/download.html))
 
 #### For Japanese
-Mecab ([Installation](http://taku910.github.io/mecab/#install))
+SudachiPy ([Installation](https://github.com/WorksApplications/SudachiPy))
+SudachiDict ([Installation](https://github.com/WorksApplications/SudachiDict))
 
 ### Install Python libraries
 ```shell
@@ -98,25 +99,25 @@ position_rank(title + abstract, tokenizer, alpha=0.6, window_size=4, num_keyphra
 ### Simple example
 ```py
 from position_rank import position_rank
-from tokenizer import MecabTokenizer
+from tokenizer import SudachiTokenizer
 
 title = "{日本語論文のタイトル}"
 abstract = "{日本語論文の概要}"
 
-tokenizer = MecabTokenizer()
+tokenizer = SudachiTokenizer()
 position_rank(title + abstract, tokenizer, lang="ja")
 ["keyphrase1", "keyphrase2", ..., "keyphrase10"]
 ```
 
-Use dictionary for Mecab. Add Mecab's option string to MecabTokenizer.  
+Modify Sudachi Mode, Add option string to SudachiTokenizer.  
 ```py
 from position_rank import position_rank
-from tokenizer import MecabTokenizer
+from tokenizer import SudachiTokenizer
 
 title = "{日本語論文のタイトル}"
 abstract = "{日本語論文の概要}"
 
-tokenizer = MecabTokenizer("-d /usr/local/lib/mecab/dic/mecab-ipadic-neologd")
+tokenizer = SudachiTokenizer(sudachi_mode="C")
 position_rank(title + abstract, tokenizer, lang="ja")
 ["keyphrase1", "keyphrase2", ..., "keyphrase10"]
 ```

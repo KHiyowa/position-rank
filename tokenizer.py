@@ -1,6 +1,7 @@
 from stanfordcorenlp import StanfordCoreNLP
 import re
-import MeCab
+from sudachipy import tokenizer
+from sudachipy import dictionary
 
 
 class StanfordCoreNlpTokenizer(object):
@@ -61,25 +62,25 @@ class StanfordCoreNlpTokenizer(object):
             return "O"
 
 
-class MecabTokenizer(object):
+class SudachiTokenizer(object):
     """Tokenizer for Japanese using Mecab.
 
     This class tokenize Japanese sentence.
     As a default, tokenizer returns tokens whhic POS are adjective(形容詞) or noun(名詞).
     Simultaneously, tokenizer returns specific pattern phrases.
-    This tokenizer requires that Mecab is installed.
+    This tokenizer requires that SudachiPy is installed.
 
     """
 
-    def __init__(self, mecab_args="mecabrc"):
+    def __init__(self, sudachi_mode="A"):
         """Initialize tokenizer.
 
         Args:
-          mecab_args: Argument of mecab.
-            i.e. '-Ochasen', '-d /usr/local/lib/mecab/dic/mecab-ipadic-neologd'
+          sudachi_mode: A, B, or C.
 
         """
-        self.tokenizer = MeCab.Tagger(mecab_args)
+        self.tokenizer = dictionary.Dictionary().create()
+        self.sudachi_mode = sudachi_mode
 
     def tokenize(self, sentence, pos_filter=["名詞", "形容詞"]):
         """Tokenize sentence.
@@ -98,14 +99,15 @@ class MecabTokenizer(object):
           Phrase list: Specific continuous tokens.
 
         """
-        tokens = [(morph.split("\t")[0], morph.split("\t")[1].split(",")[0]) \
-                    for morph in self.tokenizer.parse(sentence).split("\n") \
-                        if not ((morph.split("\t")[0] == "EOS") or (morph.split("\t")[0] == ""))]
+        tokens = [(morph.surface(), morph.part_of_speech()[0]) \
+                    for morph in self.tokenizer.tokenize(sentence, self.sudachi_mode) \
+                        if not (( morph.surface() in {"EOS", "BOS"} ) or (morph.surface() == ""))]
         pos_tags = [self._anonymize_pos(token[1]) for token in tokens]
         pattern = r"形*名+"
         iterator = re.finditer(pattern, "".join(pos_tags))
         phrases = filter(lambda x: len(x) <= 3, [[token[0] for token in tokens[match.start():match.end()]] for match in iterator])
         phrases = ["_".join(phrase) for phrase in phrases]
+
         return [token[0] for token in tokens if token[1] in pos_filter], phrases
 
     def _anonymize_pos(self, pos):
