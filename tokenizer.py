@@ -2,6 +2,7 @@ from stanfordcorenlp import StanfordCoreNLP
 import re
 from sudachipy import tokenizer
 from sudachipy import dictionary
+from typing import List
 
 
 class StanfordCoreNlpTokenizer(object):
@@ -72,7 +73,7 @@ class SudachiTokenizer(object):
 
     """
 
-    def __init__(self, sudachi_mode="A"):
+    def __init__(self, sudachi_mode:str ="C"):
         """Initialize tokenizer.
 
         Args:
@@ -80,9 +81,14 @@ class SudachiTokenizer(object):
 
         """
         self.tokenizer = dictionary.Dictionary().create()
-        self.sudachi_mode = sudachi_mode
+        if sudachi_mode == "A":
+            self.sudachi_mode = mode = tokenizer.Tokenizer.SplitMode.A
+        elif sudachi_mode == "B":
+            self.sudachi_mode = mode = tokenizer.Tokenizer.SplitMode.B
+        elif sudachi_mode == "C":
+            self.sudachi_mode = mode = tokenizer.Tokenizer.SplitMode.C
 
-    def tokenize(self, sentence, pos_filter=["名詞", "形容詞"]):
+    def tokenize(self, sentence:str, pos_filter:List[str] =["名詞", "形容詞"]):
         """Tokenize sentence.
 
         Tokenize sentence and return token list and phrase list.
@@ -110,7 +116,7 @@ class SudachiTokenizer(object):
 
         return [token[0] for token in tokens if token[1] in pos_filter], phrases
 
-    def _anonymize_pos(self, pos):
+    def _anonymize_pos(self, pos:str) -> str:
         """Anonymize POS tags.
         Adjective tags are replaced to '形', noun are to '名', and others are to '他'.
 
